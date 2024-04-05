@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  contact_number: {
+  primary_contact_number: {
     type: String,
     required: true,
     validate: {
@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Admin', 'SuperAdmin', 'User'],
+    enum: ['Admin', 'Vendor', 'User'],
     default: 'User',
     required: true,
   },
@@ -70,17 +70,53 @@ const userSchema = new mongoose.Schema({
   },
   last_updated_by: {
     type: String,
-  }
+  },
+  addresses: [{
+    recipientName: {
+      type: String,
+      required: true,
+    },
+    contact_Number: {
+      type: Number,
+      required: true,
+      validator: (value) => {
+        return /^\+[0-9]{12}$/.test(value);
+      },
+    },
+    flatOrHouseNumber: {
+      type: String,
+      required: true,
+    },
+    areaOrColony: {
+      type: String,
+      required: true,
+    },
+    streetOrLane: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      required: true,
+    },
+    pin: {
+      type: String,
+      required: true,
+    }
+  }]
 });
 
 userSchema.pre('save', async function(next){
-
-  const hashedPassword =   bcrypt.hashSync(this.password, 10);
+  const hashedPassword = bcrypt.hashSync(this.password, 10);
   this.password = hashedPassword;
   this.username = this.username.toLowerCase();
   this.email = this.email.toLowerCase();
-  next()
-})
+  next();
+});
 
 const UserModel = mongoose.model('User', userSchema);
 
